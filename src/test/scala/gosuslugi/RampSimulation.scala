@@ -21,7 +21,7 @@ class RampSimulation extends Simulation {
 
 
   val rampSim = scenario("RampSimalation")
-    .rendezVous(1)
+//    .rendezVous(1)
     .during(1 second) {
       pace(1 second)
         .exec(http("mainPage")
@@ -32,7 +32,7 @@ class RampSimulation extends Simulation {
         )
     }
     .feed(csvFeeder)
-    .rendezVous(1)
+//    .rendezVous(1)
     .during(1 second) {
       pace(1 second)
         .exec(http("searchRndRq")
@@ -46,8 +46,10 @@ class RampSimulation extends Simulation {
 
   setUp(
     rampSim.inject(
-      rampUsersPerSec(0) to (perMinute(30)) during(30 minutes)
-//      constantUsersPerSec(1) during (12 minutes).throttle(
-//        reachRps(1) in (12 minutes)
-  ).protocols(httpProtocol))
+      rampUsersPerSec(0) to (perMinute(30)) during(5 minutes)
+//      rampConcurrentUsers(0) to (1) during (5 minutes)
+  ).protocols(httpProtocol)).throttle(
+    jumpToRps(1),
+    holdFor(5 minutes)
+  )
 }

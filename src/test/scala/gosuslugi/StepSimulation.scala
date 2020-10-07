@@ -20,7 +20,7 @@ class StepSimulation extends Simulation {
     .userAgentHeader("""Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Firefox/31.0""")
 
   val stepSim = scenario("StepSimalation")
-    .rendezVous(1)
+//    .rendezVous(1)
     .during(1 second) {
       pace(1 second)
         .exec(http("mainPage")
@@ -31,7 +31,7 @@ class StepSimulation extends Simulation {
         )
     }
     .feed(csvFeeder)
-    .rendezVous(1)
+//    .rendezVous(1)
     .during(1 second) {
       pace(1 second)
         .exec(http("searchRndRq")
@@ -46,11 +46,13 @@ class StepSimulation extends Simulation {
 
   setUp(
     stepSim.inject(
-      constantUsersPerSec(perMinute(5)) during(5 minutes),
-      constantUsersPerSec(perMinute(10)) during(5 minutes),
-      constantUsersPerSec(perMinute(15)) during(5 minutes),
-      constantUsersPerSec(perMinute(20)) during(5 minutes),
-      constantUsersPerSec(perMinute(25)) during(5 minutes),
-      constantUsersPerSec(perMinute(30)) during(5 minutes)
-  ).protocols(httpProtocol))
+      incrementUsersPerSec(0.1) // Double
+        .times(5)
+        .eachLevelLasting(1 minute)
+//        .separatedByRampsLasting(10 seconds)
+        .startingFrom(0.1) // Double
+  ).protocols(httpProtocol)).throttle(
+    jumpToRps(1),
+    holdFor(5 minutes)
+  )
 }
